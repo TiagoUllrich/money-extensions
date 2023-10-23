@@ -1,0 +1,30 @@
+name: Construção e publicação do pacote
+
+on:
+    push:
+        branches:
+            - master
+
+jobs:
+    build-and-deploy:
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v3
+
+            - name: Setup dotnet
+              uses: actions/setup-dotnet@v3
+              with:
+                dotnet-version: '6.0.x'
+
+            - name: Build dotnet
+              run: dotnet build --configuration Release
+
+            - name: Test
+              run: dotnet test
+            
+            - name: Criar o Package
+              run: dotnet pack --configuration Release
+
+            - name: Publicar
+              run: otnet nuget push "MoneyExtension/bin/Release/*.nupkg" -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json
